@@ -1,0 +1,147 @@
+/* ===== Compact Neo-Blog Theme ===== */
+body {
+    background: #f0f0f0;
+    color: #222;
+    font-family: "Arial", sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    background-image:url("images/wallpaperdreambbq.jpg");
+    background-position: fixed;
+    background-size: cover;
+}
+
+a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#layout {
+    max-width: 730px;
+    margin: 20px auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Header */
+#header {
+    text-align: center;
+    padding: 15px;
+    background: #eee;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Content wrapper */
+#content-wrapper {
+    display: flex;
+    gap: 15px;
+}
+
+/* Main posts */
+#main {
+    flex: 1;
+}
+
+.entry_table {
+    max-width: 500px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #fafafa;
+}
+
+.entry_title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.entry_state {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.entry_text {
+    font-size: 14px;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 180px;
+    font-size: 13px;
+}
+
+.sidebar-widget {
+    margin-bottom: 15px;
+    padding: 5px;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+}
+
+.sidebar-widget h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 3px;
+}
+
+.sidebar-widget ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-widget li {
+    margin-bottom: 5px;
+}
+
+/* Footer */
+#footer {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Calendar compact */
+.mini-calendar {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+}
+
+.mini-calendar th, .mini-calendar td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 2px 4px;
+}
+
+.mini-calendar .current-day {
+    background: #cce5ff;
+}
+
+.mini-calendar .has-post a {
+    font-weight: bold;
+    color: #0066cc;
+}
