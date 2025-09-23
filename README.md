@@ -1,6 +1,6 @@
 <center>
-  <img src="examples/image.png" width="44%">
-  <img src="examples/image2.png" width="44%">
+  <img src="https://ophanimkei.com/examples/image.png" width="44%">
+  <img src="https://ophanimkei.com/examples/image2.png" width="44%">
 </center>
 
 # Mala Loves 2 Blog
@@ -32,7 +32,7 @@ The blog requires basic set up. These instructions will be Cloudpanel/PHPMyAdmin
 2. In your panel, navigate to databases. It will take you to a very ugly page (in Cloudpanel, it's under Databases. In Cpanel, it's under PHPMyAdmin)
 
    <center>
-   <img src="examples/uglyasspage.png" width="40%">
+   <img src="https://ophanimkei.com/examples/uglyasspage.png" width="40%">
    </center> 
 
 3. Make a new database. Different panels handle this differently.
