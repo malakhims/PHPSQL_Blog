@@ -1,6 +1,5 @@
 <center>
-  <img src="https://ophanimkei.com/examples/image.png" width="44%">
-  <img src="https://ophanimkei.com/examples/image2.png" width="44%">
+| ![Screenshot 1](https://ophanimkei.com/tools/blog/examples/imag1.png) |![Screenshot 2](https://ophanimkei.com/tools/blog/examples/image2.png) |
 </center>
 
 # Mala Loves 2 Blog
