@@ -2,7 +2,7 @@
 session_start();
 
 // ===== Single User Configuration =====
-$username = 'THISSIWHEREYOURUSERNAMEGOES;  // Change this to whatever you want
+$username = 'THISSIWHEREYOURUSERNAMEGOES';  // Change this to whatever you want
 $password = 'BLABLABLABLA';  // Change this or ELSE and make it GOOD.
 // ====================================
 
