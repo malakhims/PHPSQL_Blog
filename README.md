@@ -1,5 +1,5 @@
 
-| ![Screenshot 1]("https://ophanimkei.com/examples/image.png") | ![Screenshot 2]("https://ophanimkei.com/examples/image2.png") |
+<img src="https://ophanimkei.com/tools/blog/examples/image.png"> <img src="https://ophanimkei.com/tools/blog/examples/image2.png">
 
 # Mala Loves 2 Blog
 
@@ -30,7 +30,7 @@ The blog requires basic set up. These instructions will be Cloudpanel/PHPMyAdmin
 2. In your panel, navigate to databases. It will take you to a very ugly page (in Cloudpanel, it's under Databases. In Cpanel, it's under PHPMyAdmin)
 
    <center>
-   <img src="https://ophanimkei.com/examples/uglyasspage.png" width="40%">
+   <img src="https://ophanimkei.com/tools/blog/examples/uglyasspage.png" width="40%">
    </center> 
 
 3. Make a new database. Different panels handle this differently.
