@@ -13,7 +13,7 @@ $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 // ========================
 
 // Initialize database connection
-include 'config.php'; // <-- DO NOT TOUCH
+include 'config.php'; // <-- THIS WAS MISSING!
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
     $file = $_FILES['image'];
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
 
 // Handle image upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
-
+    // ... [keep your existing image upload code] ...
 }
 
 // Handle post submission
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
         $content = $_POST['content'];
         
         $stmt = $pdo->prepare("
-            INSERT INTO posts (title, content, post_date, category, tags, anchor_name) 
+            INSERT INTO logs (title, content, post_date, category, tags, anchor_name) 
             VALUES (?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
@@ -85,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -169,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
         }
         </script>
         
-        <script src="https://cdn.tiny.cloud/1/9lr4jbj4uwtlwjr2ihwq9rtkp8668s2ctc5jszpmf5xitce1/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        <?php include "tinycme.js"?>
 <script>
   tinymce.init({
     selector: '#editor',
