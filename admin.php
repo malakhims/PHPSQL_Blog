@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/keys/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . 'auth.php';
 check_login(); // This will show login form if not logged in
 
 ?>
