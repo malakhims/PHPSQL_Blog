@@ -1,6 +1,5 @@
-<center>
-| ![Screenshot 1](https://ophanimkei.com/tools/blog/examples/imag1.png) |![Screenshot 2](https://ophanimkei.com/tools/blog/examples/image2.png) |
-</center>
+
+| ![Screenshot 1]("https://ophanimkei.com/examples/image.png") | ![Screenshot 2]("https://ophanimkei.com/examples/image2.png") |
 
 # Mala Loves 2 Blog
 
