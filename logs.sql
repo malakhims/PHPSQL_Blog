@@ -1,5 +1,5 @@
 
-CREATE TABLE `posts` (
+CREATE TABLE `logs` (
   `id` int(11) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
