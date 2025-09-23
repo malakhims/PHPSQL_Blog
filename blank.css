@@ -1,0 +1,207 @@
+/* =========================================================================
+   BAREBONES THEME — style.css
+   - Intentionally minimal.
+   - All important values are CSS variables at the top so they are easy to edit.
+   - Comments explain purpose and suggested edits.
+   ========================================================================= */
+
+/* ---------- Customize these variables ---------- */
+:root{
+          /* overall page width; reduce to make a smaller box */
+  --gutter: 14px;               /* spacing between columns and around content */
+  --font-sans: system-ui, Arial, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --bg: #ffffff;                /* main container background */
+  --page-bg: #f6f6f6;           /* page background */
+  --accent: #444444;            /* primary accent color (links, headings) */
+  --muted: #777777;             /* secondary text color */
+  --radius: 6px;                /* small rounded corners if desired */
+  --border: 1px solid #e4e4e4;  /* container border */
+}
+
+/* ---------- Base / layout ---------- */
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--page-bg);
+  font-family: var(--font-serif);
+  color: var(--accent);
+  -webkit-font-smoothing:antialiased;
+  background-image:url();
+}
+
+.main {
+    width: 600px;
+}
+
+#site {
+  margin: 24px auto;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: var(--border);
+  overflow: hidden; /* ensures contained corners */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Header: small and unobtrusive */
+#site-header {
+  padding: 14px var(--gutter);
+  border-bottom: var(--border);
+  background: transparent;
+}
+.site-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 18px;   /* change this for larger/smaller title */
+  font-weight: 700;
+}
+.site-title a { color: var(--accent); text-decoration: none; }
+.site-sub { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+
+/* Content: two-column layout */
+#content {
+  display: flex;
+  gap: var(--gutter);
+  padding: var(--gutter);
+}
+
+/* Sidebar: narrow column for profile, tags, archive
+   - To move sidebar to the right: move the <aside> after <main> in HTML, or use order rules.
+*/
+#sidebar {
+  width: 220px;                  /* change to make sidebar wider/narrower */
+  min-width: 160px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+/* Widgets inside sidebar */
+.widget {
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  background: #fbfbfb;
+  border: 1px solid #fafafa;
+}
+.widget-title {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Avatar: small square or round — change size here */
+.avatar {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border: 1px solid #eee;
+}
+
+/* Simple lists */
+.list-links, .tag-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.list-links li, .tag-list li { margin: 6px 0; }
+.tag-list a { font-size: 12px; color: var(--muted); text-decoration:none; }
+.tag-list a:hover { text-decoration: underline; color: var(--accent); }
+
+/* Posts column: flexible, scrollable if you want (see next section) */
+#posts {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--accent);
+}
+
+/* Each post — minimal card with subtle divider */
+.post {
+  padding: 10px 0;
+  border-bottom: 1px dashed #eee;
+}
+.post-head { margin: 0 0 8px; }
+.post-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.post-date { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+
+/* Post body — content container */
+.post-body {
+  margin-bottom: 8px;
+  color: var(--accent);
+  /* If you want posts to be slightly indented, add padding here. */
+}
+
+/* Post tags and small misc links */
+.post-tags a {
+  margin-right: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+.post-tags a:hover { color: var(--accent); text-decoration: underline; }
+
+/* Footer */
+#site-footer {
+  padding: 10px var(--gutter);
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: var(--border);
+}
+
+/* ---------- Optional: make posts column scroll inside fixed-height box ----------
+   If you want the entire site to be a small rectangle with an internal scrolling
+   post area (sidebar visible beside it), uncomment the rules below and fine-tune.
+   - Change --site-height to change container height.
+   - Use only one of the two approaches: full page scrolling (default)
+     or fixed box (below). */
+
+/*
+:root { --site-height: 520px; }
+
+#site {
+  max-height: var(--site-height);
+  display: flex;
+  flex-direction: column;
+}
+
+#content {
+  flex: 1;
+  min-height: 0;  // allow child to scroll
+}
+
+#posts {
+  overflow-y: auto;
+  padding-right: 6px; // room for scrollbar
+}
+#sidebar {
+  overflow-y: auto;
+  max-height: calc(var(--site-height) - 60px); // header+footer approximated
+}
+*/
+
+/* ---------- Tiny helpers ---------- */
+a { color: var(--accent); }
+a:hover { text-decoration: underline; }
+
+.empty { padding: 20px; color: var(--muted); text-align:center; }
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 700px) {
+  :root { --site-width: 80%; }
+  #content { flex-direction: column; }
+  #sidebar { width: 100%; order: 2; } /* put sidebar after posts on small screens */
+  #posts { order: 1; }
+}
