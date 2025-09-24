@@ -2,21 +2,22 @@
 session_start();
 
 // ===== Single User Configuration =====
-$username = 'THISSIWHEREYOURUSERNAMEGOES';  // Change this to whatever you want
-$password = 'BLABLABLABLA';  // Change this or ELSE and make it GOOD.
+$username = 'username';  // Change this to whatever you want
+$password_hash = 'STORESHASHEDPASSWORD';  // Change this. Should be hashed but accepts plaintext (really recommend only doing that for testing)
 // ====================================
 
 function check_login() {
-    global $username, $password;
-    
+    global $username, $password_hash;
+
     if (!isset($_SESSION['logged_in'])) {
         if (isset($_POST['username']) && isset($_POST['password'])) {
-            if ($_POST['username'] === $username && $_POST['password'] === $password) {
+            // Verify password with password_verify()
+            if ($_POST['username'] === $username && password_verify($_POST['password'], $password_hash)) {
                 $_SESSION['logged_in'] = true;
                 return true;
             }
         }
-        
+
         show_login_form();
         exit;
     }
