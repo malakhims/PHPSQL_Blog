@@ -45,7 +45,7 @@ html, body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-/* Header: small and unobtrusive */
+/*HEADER*/
 #site-header {
   padding: 14px var(--gutter);
   border-bottom: var(--border);
@@ -54,7 +54,7 @@ html, body {
 .site-title {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 18px;   /* change this for larger/smaller title */
+  font-size: 18px;  
   font-weight: 700;
 }
 .site-title a { color: var(--accent); text-decoration: none; }
@@ -78,7 +78,7 @@ html, body {
   color: var(--accent);
 }
 
-/* Widgets inside sidebar */
+/* Widgets that are usually in the sidebar*/
 .widget {
   margin-bottom: 12px;
   padding: 8px;
@@ -93,7 +93,7 @@ html, body {
   font-weight: 700;
 }
 
-/* Avatar: small square or round — change size here */
+/* Avatar*/
 .avatar {
   width: 100%;
   height: auto;
@@ -122,7 +122,7 @@ html, body {
   color: var(--accent);
 }
 
-/* Each post — minimal card with subtle divider */
+/* The post container */
 .post {
   padding: 10px 0;
   border-bottom: 1px dashed #eee;
@@ -140,10 +140,10 @@ html, body {
 .post-body {
   margin-bottom: 8px;
   color: var(--accent);
-  /* If you want posts to be slightly indented, add padding here. */
+  /* can add padding.. recommend really*/
 }
 
-/* Post tags and small misc links */
+/* Post tags  */
 .post-tags a {
   margin-right: 6px;
   color: var(--muted);
@@ -161,47 +161,3 @@ html, body {
   border-top: var(--border);
 }
 
-/* ---------- Optional: make posts column scroll inside fixed-height box ----------
-   If you want the entire site to be a small rectangle with an internal scrolling
-   post area (sidebar visible beside it), uncomment the rules below and fine-tune.
-   - Change --site-height to change container height.
-   - Use only one of the two approaches: full page scrolling (default)
-     or fixed box (below). */
-
-/*
-:root { --site-height: 520px; }
-
-#site {
-  max-height: var(--site-height);
-  display: flex;
-  flex-direction: column;
-}
-
-#content {
-  flex: 1;
-  min-height: 0;  // allow child to scroll
-}
-
-#posts {
-  overflow-y: auto;
-  padding-right: 6px; // room for scrollbar
-}
-#sidebar {
-  overflow-y: auto;
-  max-height: calc(var(--site-height) - 60px); // header+footer approximated
-}
-*/
-
-/* ---------- Tiny helpers ---------- */
-a { color: var(--accent); }
-a:hover { text-decoration: underline; }
-
-.empty { padding: 20px; color: var(--muted); text-align:center; }
-
-/* Responsive: stack columns on narrow screens */
-@media (max-width: 700px) {
-  :root { --site-width: 80%; }
-  #content { flex-direction: column; }
-  #sidebar { width: 100%; order: 2; } /* put sidebar after posts on small screens */
-  #posts { order: 1; }
-}
