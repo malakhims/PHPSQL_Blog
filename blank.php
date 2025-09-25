@@ -31,7 +31,6 @@ $posts = $posts->fetchAll();
     <title>blog title</title>
     <meta name="description" content="my bloggies">
     <link rel="stylesheet" href="blank.css">
-    <link rel="script" href=calendar.js">
 </head>
 <body>
     
@@ -185,3 +184,4 @@ $posts = $posts->fetchAll();
 
     <div id="footer">© 2025 My Footer text for cute princesses</div>
 </div>
+
