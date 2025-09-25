@@ -1,3 +1,4 @@
+/* ===== Inspired by common Neocities blog layouts.. Used to have blog like this ===== */
 body {
     background: #fdfcf7;
     font-family: Georgia, serif;
@@ -143,4 +144,5 @@ a:hover { text-decoration: underline; }
     padding: 10px;
     border-top: 3px double #aaa;
     background: #f9f7ff;
+
 }
