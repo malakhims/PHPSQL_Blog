@@ -31,7 +31,6 @@ $posts = $posts->fetchAll();
     <title>blog title</title>
     <meta name="description" content="my bloggies">
     <link rel="stylesheet" href="rectangle.css">
-    <link rel="script" href=calendar.js">
 </head>
 <body>
     
