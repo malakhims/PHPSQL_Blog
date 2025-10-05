@@ -15,6 +15,16 @@ $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 // Initialize database connection
 include 'config.php'; // <-- THIS WAS MISSING!
 
+// Fetch existing entries for dropdown
+$posts = [];
+try {
+    $stmt = $pdo->query("SELECT id, title, visible FROM logs ORDER BY post_date DESC");
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $posts = [];
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
     $file = $_FILES['image'];
     
@@ -58,32 +68,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
 
 // Handle image upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
-    // OLD FUNCTION.. 
+    // ... [keep your existing image upload code] ...
 }
 
 // Handle post submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
     try {
         $content = $_POST['content'];
-        
-        $stmt = $pdo->prepare("
-            INSERT INTO logs (title, content, post_date, category, tags, anchor_name) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([
-            $_POST['title'],
-            $content,
-            $_POST['post_date'] ?? date('Y-m-d H:i:s'),
-            $_POST['category'] ?? 'Uncategorized',
-            $_POST['tags'] ?? '',
-            $_POST['anchor_name'] ?? ''
-        ]);
-        
-        echo '<div class="success">Post published! <a href="index.php">View Blog</a></div>';
+        $post_date = !empty($_POST['post_date']) ? $_POST['post_date'] : date('Y-m-d H:i:s');
+
+        if (!empty($_POST['edit_id'])) {
+            // --- Update existing post ---
+            $stmt = $pdo->prepare("
+                UPDATE logs
+                SET title = ?, content = ?, post_date = ?, category = ?, tags = ?, anchor_name = ?, visible = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $_POST['title'],
+                $content,
+                $post_date,
+                $_POST['category'] ?? 'Uncategorized',
+                $_POST['tags'] ?? '',
+                $_POST['anchor_name'] ?? '',
+                $_POST['visible'] ?? 'n',
+                $_POST['edit_id']
+            ]);
+            echo '<div class="success">Post updated!</div>';
+        } else {
+            // --- Create new post ---
+            $stmt = $pdo->prepare("
+                INSERT INTO logs (title, content, post_date, category, tags, anchor_name, visible)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $_POST['title'],
+                $content,
+                $post_date,
+                $_POST['category'] ?? 'Uncategorized',
+                $_POST['tags'] ?? '',
+                $_POST['anchor_name'] ?? '',
+                $_POST['visible'] ?? 'n'
+            ]);
+            echo '<div class="success">Post published! <a href="index.php">View Blog</a></div>';
+        }
     } catch (PDOException $e) {
-        die("Database error: " . $e->getMessage()); // Show errors
+        die("Database error: " . $e->getMessage());
     }
 }
+
 ?>
 
 
@@ -127,16 +160,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
     
     <div class="container">
 
+        <?php
+        // Fetch posts
+        $stmt = $pdo->query("SELECT id, title, visible, post_date FROM logs ORDER BY post_date DESC");
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        ?>
+
+        
+        <?php
+        $editing = false;
+        $edit_post = null;
+
+        if (isset($_GET['edit'])) {
+            $editing = true;
+            $id = (int)$_GET['edit'];
+            $stmt = $pdo->prepare("SELECT * FROM logs WHERE id = ?");
+            $stmt->execute([$id]);
+            $edit_post = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        ?>
+
+
         <form method="post" enctype="multipart/form-data">
+
+        <p>
+
+            <label>Edit existing post:<br>
+                <select name="edit_id" onchange="loadPost(this.value)">
+                <option value="">— New Post —</option>
+                <optgroup label="Drafts">
+                    <?php foreach ($posts as $p): ?>
+                    <?php if ($p['visible'] == 'n'): ?>
+                        <option value="<?= htmlspecialchars($p['id']) ?>">
+                        <?= htmlspecialchars($p['title']) ?> (<?= htmlspecialchars($p['post_date']) ?>)
+                        </option>
+                    <?php endif; ?>
+                    <?php endforeach; ?>
+                </optgroup>
+                <optgroup label="Published">
+                    <?php foreach ($posts as $p): ?>
+                    <?php if ($p['visible'] == 'y'): ?>
+                        <option value="<?= htmlspecialchars($p['id']) ?>">
+                        <?= htmlspecialchars($p['title']) ?> (<?= htmlspecialchars($p['post_date']) ?>)
+                        </option>
+                    <?php endif; ?>
+                    <?php endforeach; ?>
+                </optgroup>
+                </select>
+            </label>
+            </p>
             <p>
                 <label>Title:<br>
-                <input type="text" name="title" required style="width:96%">
+                <input type="text" name="title" required style="width:96%"
+                    value="<?= htmlspecialchars($edit_post['title'] ?? '') ?>">
                 </label>
             </p>
             
             <p>
                 <label>Content (HTML):<br>
-                <textarea id="editor" name="content"></textarea>
+                <textarea id="editor" name="content"><?= htmlspecialchars($edit_post['content'] ?? '') ?></textarea>
                 </label>
             </p>
             
@@ -144,16 +226,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
             
             <p>
                 <label>Date:<br>
-                <input type="datetime-local" name="post_date">
+                <input type="datetime-local" name="post_date"
+       value="<?= isset($edit_post['post_date']) ? date('Y-m-d\TH:i', strtotime($edit_post['post_date'])) : '' ?>">
                 </label>
             </p>
             
             <p>
                 <label>Tags (comma-separated):<br>
-                <input type="text" name="tags" placeholder="personal, diary, memories">
+                <input type="text" name="tags" placeholder="personal, diary, memories"
+       value="<?= htmlspecialchars($edit_post['tags'] ?? '') ?>">
                 </label>
             </p>
 
+            <p>
+
+            <label>Status:<br>
+                <select name="visible">
+                 <option value="n" <?= (isset($edit_post['visible']) && $edit_post['visible'] === 'n') ? 'selected' : '' ?>>Draft (Not Visible)</option>
+                 <option value="y" <?= (isset($edit_post['visible']) && $edit_post['visible'] === 'y') ? 'selected' : '' ?>>Published (Visible)</option>
+                </select>
+            </label>
+            </p>
             
             <button type="submit">Publish</button>
         </form>
@@ -215,6 +308,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
     }
   });
 </script>
+<script>
+    function loadPost(id) {
+    const title = document.querySelector('[name="title"]');
+    const editor = tinymce.get('editor');
+    const date = document.querySelector('[name="post_date"]');
+    const tags = document.querySelector('[name="tags"]');
+    const visible = document.querySelector('[name="visible"]');
+
+    if (!id) {
+        // 🧹 clear everything for a new post
+        title.value = '';
+        editor.setContent('');
+        date.value = '';
+        tags.value = '';
+        visible.value = 'n';
+        return;
+    }
+
+    // otherwise load existing post
+    fetch('load_post.php?id=' + id)
+        .then(r => r.json())
+        .then(post => {
+        title.value = post.title;
+        editor.setContent(post.content);
+        date.value = post.post_date.replace(' ', 'T');
+        tags.value = post.tags;
+        visible.value = post.visible;
+        });
+    }
+
+</script>
+
 <script>
 window.onbeforeunload = function (e) {
     e = e || window.event;
