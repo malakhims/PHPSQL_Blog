@@ -15,13 +15,24 @@ $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 // Initialize database connection
 include 'config.php'; // <-- THIS WAS MISSING!
 
-// Fetch existing entries for dropdown
-$posts = [];
+// Limit how many posts show in dropdown
+$limit = 10;
+
 try {
-    $stmt = $pdo->query("SELECT id, title, visible FROM logs ORDER BY post_date DESC");
+    $stmt = $pdo->query("
+        SELECT id, title, visible, post_date 
+        FROM logs 
+        ORDER BY post_date DESC 
+        LIMIT $limit
+    ");
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Count hidden posts for info
+    $totalPosts = $pdo->query("SELECT COUNT(*) FROM logs")->fetchColumn();
+    $hiddenCount = max(0, $totalPosts - $limit);
 } catch (PDOException $e) {
     $posts = [];
+    $hiddenCount = 0;
 }
 
 
@@ -76,8 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
     try {
         $content = $_POST['content'];
         $post_date = !empty($_POST['post_date']) ? $_POST['post_date'] : date('Y-m-d H:i:s');
+        $edit_id = $_POST['edit_id'] ?? '';
 
-        if (!empty($_POST['edit_id'])) {
+        if (!empty($edit_id)) {
             // --- Update existing post ---
             $stmt = $pdo->prepare("
                 UPDATE logs
@@ -92,9 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
                 $_POST['tags'] ?? '',
                 $_POST['anchor_name'] ?? '',
                 $_POST['visible'] ?? 'n',
-                $_POST['edit_id']
+                $edit_id
             ]);
-            echo '<div class="success">Post updated!</div>';
+
+            // Redirect to avoid TinyMCE reset
+            header('Location: admin.php?success=updated');
+            exit;
         } else {
             // --- Create new post ---
             $stmt = $pdo->prepare("
@@ -110,12 +125,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
                 $_POST['anchor_name'] ?? '',
                 $_POST['visible'] ?? 'n'
             ]);
-            echo '<div class="success">Post published! <a href="index.php">View Blog</a></div>';
+
+            // Redirect to avoid TinyMCE reset
+            header('Location: admin.php?success=published');
+            exit;
         }
     } catch (PDOException $e) {
         die("Database error: " . $e->getMessage());
     }
 }
+
 
 ?>
 
@@ -159,6 +178,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
 <body>
     
     <div class="container">
+    <?php if (!empty($_GET['success'])): ?>
+    <div class="success">
+        <?php 
+        if ($_GET['success'] === 'published') echo '✅ Post published!';
+        elseif ($_GET['success'] === 'updated') echo '✅ Post updated!';
+        ?>
+    </div>
+        <?php endif; ?>
+
 
         <?php
         // Fetch posts
@@ -197,15 +225,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
                     <?php endif; ?>
                     <?php endforeach; ?>
                 </optgroup>
-                <optgroup label="Published">
-                    <?php foreach ($posts as $p): ?>
-                    <?php if ($p['visible'] == 'y'): ?>
-                        <option value="<?= htmlspecialchars($p['id']) ?>">
-                        <?= htmlspecialchars($p['title']) ?> (<?= htmlspecialchars($p['post_date']) ?>)
-                        </option>
-                    <?php endif; ?>
-                    <?php endforeach; ?>
-                </optgroup>
+                    <optgroup label="Published">
+                        <?php foreach ($posts as $p): ?>
+                            <?php if ($p['visible'] == 'y'): ?>
+                                <option value="<?= htmlspecialchars($p['id']) ?>">
+                                    <?= htmlspecialchars($p['title']) ?> (<?= htmlspecialchars($p['post_date']) ?>)
+                                </option>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+
+                        <?php if ($hiddenCount > 0): ?>
+                            <option disabled>+<?= $hiddenCount ?> more posts...</option>
+                        <?php endif; ?>
+                    </optgroup>
                 </select>
             </label>
             </p>
