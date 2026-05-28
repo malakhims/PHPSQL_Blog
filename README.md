@@ -14,10 +14,8 @@ You might be wondering: why choose this over other solutions? Well, this is actu
 - **Date and tagging system**: Blogs have a date and tagging system. These generate links automatically and allow you to filter out posts
 - **WYIWYG Editor (Optional):** Includes a What You See is What You Get Editor. You don't have to use it if you don't want to. It is pleasant to me though
 - **Very Easy to Update:** Changes will be made to this script over time to Bulk it up - it's relatively young in its lifespan. Changes are easy to put into place
-
-### **Things Are Missing But Are Planned:**
-- **Editing of Old Posts:** Old posts in the database can only currently be directly edited in the database. A bit of a pain, but something I plan to fix anyways.
-- **Drafts:** This editor doesn't have drafts though it is planned (in an update with editing of old posts). The pro of it being a WYIWYG editor is that you can really just copy and paste files directly into the editor if you
+- **Editing of Old Posts:** This system now lets you edit old posts!
+- **Drafts:** The editor now lets you save drafts
 
 If the blog in its current form appeals to you, great! Let's keep going.If not, maybe see you later?
 
