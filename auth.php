@@ -2,8 +2,8 @@
 session_start();
 
 // ===== Single User Configuration =====
-$username = 'testentries';  // Keep as is
-$password = '$2y$12$C71ayiIqjyw4f0oK1qr5oeLKoq9iZJunGl3L3qQF56D.4duhr6ngu';  // Paste your generated hash here
+$username = 'username';  // Keep as is
+$password = '$password';  // Paste your generated hash here
 // ====================================
 
 function check_login() {
