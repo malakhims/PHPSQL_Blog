@@ -2,8 +2,8 @@
 session_start();
 
 // ===== Single User Configuration =====
-$username = 'testentries';  // Change this to whatever you want
-$password = 'WFfgazHi6NI2VfwM94Fc';  // Change this
+$username = 'testentries';  // Keep as is
+$password = '$2y$12$C71ayiIqjyw4f0oK1qr5oeLKoq9iZJunGl3L3qQF56D.4duhr6ngu';  // Paste your generated hash here
 // ====================================
 
 function check_login() {
@@ -11,7 +11,8 @@ function check_login() {
     
     if (!isset($_SESSION['logged_in'])) {
         if (isset($_POST['username']) && isset($_POST['password'])) {
-            if ($_POST['username'] === $username && $_POST['password'] === $password) {
+            // Check username AND verify if the submitted password matches the stored hash
+            if ($_POST['username'] === $username && password_verify($_POST['password'], $password)) {
                 $_SESSION['logged_in'] = true;
                 return true;
             }
