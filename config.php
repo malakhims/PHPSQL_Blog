@@ -1,9 +1,9 @@
 <?php
 // config.php
 $host = 'localhost';      // Usually 'localhost'
-$db   = 'databasename'; // Your database name
-$user = 'databaseusername'; // Your database username
-$pass = 'yourdatabasepassword';  // Your database password
+$db   = 'blog'; // Your database name
+$user = 'blogadmin'; // Your database username
+$pass = '8yeNWD4u1dsCXWa2CC0U';  // Your database password
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

@@ -1,20 +1,33 @@
 <?php
+
+//˚₊‧꒰ა ☆ ໒꒱ ‧₊˚ GENERALLY YOU SHOULD NEVER ALTER THIS SECTION 
+// though that's not completely true
+// like you may end up moving the config file eventually
+// but most of of this section shouldn't be touched
+// "DO NOT TOUCH THIS" is more of a recommendation
+
+// this contains a lot of info to access your database and login
 include 'config.php';
 
-// Default month
-$current_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
+// CURRENT MONTH | DO NOT TOUCH THIS
+$current_month = $_GET['month'] ?? date('Y-m');
 
-// Prepare tag or month filter
-if (isset($_GET['tag'])) {
-    $tag = $_GET['tag'];
+
+// TAG PREPARATION FOR TAG FILTERING | DO NOT TOUCH THIS
+if (isset($_GET['tag']) && $_GET['tag'] !== '') {
+
     $stmt = $pdo->prepare("
         SELECT * FROM logs
         WHERE visible = 'y'
           AND FIND_IN_SET(:tag, tags)
         ORDER BY post_date DESC
     ");
-    $stmt->execute([':tag' => $tag]);
+    $stmt->execute([':tag' => $_GET['tag']]);
+    $posts = $stmt->fetchAll();
+
 } else {
+
+    // requesting the month
     $stmt = $pdo->prepare("
         SELECT * FROM logs
         WHERE visible = 'y'
@@ -22,10 +35,46 @@ if (isset($_GET['tag'])) {
         ORDER BY post_date DESC
     ");
     $stmt->execute([':month' => $current_month]);
-}
+    $posts = $stmt->fetchAll();
 
-$posts = $stmt->fetchAll();
+    // fallback if empty
+    if (empty($posts)) {
+
+        $stmt = $pdo->prepare("
+            SELECT * FROM logs
+            WHERE visible = 'y'
+              AND DATE_FORMAT(post_date, '%Y-%m') = (
+                  SELECT DATE_FORMAT(MAX(post_date), '%Y-%m')
+                  FROM logs
+                  WHERE visible = 'y'
+              )
+            ORDER BY post_date DESC
+        ");
+        $stmt->execute();
+        $posts = $stmt->fetchAll();
+    }
+}
 ?>
+
+
+<!-- 
+
+⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⢀⡀⠀
+⣴⠛⠉⠉⠱⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠞⠉⠉⠙⣦
+⣧⠀⠀⠀⠀⠀⠙⢦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⠋⠀⠀⠀⠀⠀⣼
+⠹⣄⠀⠀⠀⠀⠀⠀⠈⠙⠲⠦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⠖⠋⠀⠀⠀⠀⠀⠀⠀⣠⠏
+⠀⠙⢶⣄⡀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢦⡀⠀⠀⠀⠀⠀⢀⡴⠋⠁⠀⠀⠀⠀⠀⠀⠀⣀⣠⡾⠋⠀
+⠀⠀⡼⠋⠉⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢹⡄⠀⠀⠀⢠⡟⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠉⠙⢧⠀⠀
+⠀⠈⢧⡀⠀⠀⠀⠀⠀⢀⠀⣴⠋⡉⢳⡄⣷⠀⠀⠀⣾⢠⡞⠉⠙⣦⠀⠀⢀⠀⠀⠀⠀⢀⡼⠀⠀
+⠀⠀⠈⠙⠒⢲⡟⠀⠀⠀⠀⢻⣄⠙⠛⣱⠇⠀⠀⠀⠸⣎⠛⠋⣠⡟⠀⠀⠈⠀⢻⡗⠒⠋⠁⠀⠀
+⠀⠀⠀⠀⠀⠈⠷⣄⣀⣀⣀⣤⠟⠛⠛⠁⠀⠀⠀⠀⠀⠈⠛⠛⠻⣤⣀⣀⣀⣤⠾⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠈⠁⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀
+
+this section should be more familiar to you because
+it is a combination of php and html/css
+DO NOT BE AFRAID TO ALTER IT AS MUCH, JUST MAKE BACKUPS
+use CONTROL F TO find things like header and footer
+---->
 
 <!DOCTYPE html>
 <html>
@@ -38,52 +87,73 @@ $posts = $stmt->fetchAll();
 </head>
 <body>
 
+<!---
+⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+well. you're here. in blank.php
+i'm going to be honest
+i'm not commenting this out because i don't want to.
+like there's a few small ones, but it's hard for me to bug test this file/see things clearly
+since it has very little styling
+so... you're on your own!!!
+
+
+(please report any bugs to me....)
+--->
+
 <div id="layout">
     <div id="header">gay gay homosexual gay</div>
 
-    <div id="content-wrapper">
-        <!-- Main posts -->
-        <div class="main">
-            <?php foreach ($posts as $post): ?>
-                <div class="entry_table" id="post-<?= $post['id'] ?>">
-                    <div class="entry_title"><?= htmlspecialchars($post['title']) ?></div>
-                    <div class="entry_state">Posted on: <?= $post['post_date'] ?></div>
-                    <div class="entry_text"><?= nl2br(htmlspecialchars_decode($post['content'])) ?></div>
-
-                    <?php if (!empty($post['tags'])): ?>
-                        <div class="entry-tags">
-                            Tags:
-                            <?php foreach (explode(',', $post['tags']) as $tag): ?>
-                                <a href="?tag=<?= urlencode(trim($tag)) ?>">#<?= htmlspecialchars(trim($tag)) ?></a>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
+	<div id="content-wrapper">   
+		<div id="main">
+			<?php foreach ($posts as $post): ?>
+				<table class="entry_table" id="post-<?= $post['id'] ?>">
+					<tr>
+						<td class="entry_bg">
+							<div class="entry_title"><?= htmlspecialchars($post['title']) ?></div>
+							<div class="entry_state">Posted on: <?= $post['post_date'] ?></div>
+							<div class="entry_text">
+								<?php if (!empty($post['tags'])): ?>
+									<div class="entry_tags">
+										Tags:
+										<?php 
+										$tags = explode(',', $post['tags']);
+										foreach ($tags as $tag): 
+											$tag = trim($tag);
+										?>
+											<a href="?tag=<?= urlencode($tag) ?>"><?= htmlspecialchars($tag) ?></a>
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+								<?= nl2br(htmlspecialchars_decode($post['content'])) ?>
+							</div>
+						</td>
+					</tr>
+				</table>
+			<?php endforeach; ?>
+		</div>
 
         <!-- Sidebar -->
         <div id="sidebar">
             <div class="sidebar-widget">
                 <h3>Latest Posts</h3>
                 <ul>
-                    <?php 
-                    $recent_posts = $pdo->query("
-                        SELECT id, title, post_date
-                        FROM logs
-                        WHERE visible = 'y'
-                        ORDER BY post_date DESC
-                        LIMIT 5
-                    ")->fetchAll();
+				<?php
+					$recent_posts = $pdo->query("
+						SELECT id, title, post_date 
+						FROM logs 
+						WHERE visible = 'y'
+						ORDER BY post_date DESC 
+						LIMIT 5
+					")->fetchAll();
 
-                    foreach ($recent_posts as $post):
-                        $month = date('Y-m', strtotime($post['post_date']));
-                        $day = date('j', strtotime($post['post_date']));
-                    ?>
-                        <a href="?month=<?= $month ?>&day=<?= $day ?>#post-<?= $post['id'] ?>">
-                            <?= htmlspecialchars($post['title']) ?><br>
-                        </a>
-                    <?php endforeach; ?>
+					foreach ($recent_posts as $post): 
+						$month = date('Y-m', strtotime($post['post_date']));
+						$day = date('j', strtotime($post['post_date']));
+					?>
+						<a href="?month=<?= $month ?>&day=<?= $day ?>#post-<?= $post['id'] ?>">
+							<?= htmlspecialchars($post['title']) ?><br>
+						</a>
+					<?php endforeach; ?>
                 </ul>
             </div>
 
@@ -91,21 +161,23 @@ $posts = $stmt->fetchAll();
             <div class="sidebar-widget">
                 <h3>Tags</h3>
                 <ul>
-                    <?php
-                    $tags_raw = $pdo->query("SELECT tags FROM logs WHERE tags != ''")->fetchAll();
-                    $all_tags = [];
+				<?php
+				$tags_raw = $pdo->query("SELECT tags FROM logs WHERE tags != ''")->fetchAll();
+				$all_tags = [];
 
-                    foreach ($tags_raw as $row) {
-                        $tags = explode(',', $row['tags']);
-                        foreach ($tags as $tag) {
-                            $clean_tag = trim($tag);
-                            if (!empty($clean_tag)) $all_tags[$clean_tag] = true;
-                        }
-                    }
+				foreach ($tags_raw as $row) {
+					$tags = explode(',', $row['tags']);
+					foreach ($tags as $tag) {
+						$clean_tag = trim($tag);
+						if (!empty($clean_tag)) {
+							$all_tags[$clean_tag] = true;
+						}
+					}
+				}
 
-                    foreach (array_keys($all_tags) as $tag): ?>
-                        <li><a href="?tag=<?= urlencode($tag) ?>"><?= htmlspecialchars($tag) ?></a></li>
-                    <?php endforeach; ?>
+				foreach (array_keys($all_tags) as $tag): ?>
+					<li><a href="?tag=<?= urlencode($tag) ?>"><?= htmlspecialchars($tag) ?></a></li>
+				<?php endforeach; ?>
                 </ul>
             </div>
 
@@ -113,6 +185,7 @@ $posts = $stmt->fetchAll();
             <div class="sidebar-widget">
                 <h3>Calendar</h3>
                 <div id="calendar">
+                    <?= date('F Y', strtotime($current_month . '-01')) ?>
                     <?= date('F Y', strtotime($current_month . '-01')) ?>
                     <?php
                     $date = new DateTime($current_month . '-01');

@@ -1,31 +1,78 @@
 <?php
+
+//˚₊‧꒰ა ☆ ໒꒱ ‧₊˚ GENERALLY YOU SHOULD NEVER ALTER THIS SECTION 
+// though that's not completely true
+// like you may end up moving the config file eventually
+// but most of of this section shouldn't be touched
+// "DO NOT TOUCH THIS" is more of a recommendation
+
+// this contains a lot of info to access your database and login
 include 'config.php';
 
-// Get the selected month from URL or use current month
-$current_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
+// CURRENT MONTH | DO NOT TOUCH THIS
+$current_month = $_GET['month'] ?? date('Y-m');
 
-// 🟢 Add visibility filter
-$visible_filter = "visible = 'y'";
 
-// Posts for tag or month (only visible)
-if (isset($_GET['tag'])) {
-    $tag = $_GET['tag'];
-    $posts = $pdo->prepare("
-        SELECT * FROM logs 
-        WHERE FIND_IN_SET(:tag, tags) AND $visible_filter
+// TAG PREPARATION FOR TAG FILTERING | DO NOT TOUCH THIS
+if (isset($_GET['tag']) && $_GET['tag'] !== '') {
+
+    $stmt = $pdo->prepare("
+        SELECT * FROM logs
+        WHERE visible = 'y'
+          AND FIND_IN_SET(:tag, tags)
         ORDER BY post_date DESC
     ");
-    $posts->execute([':tag' => $tag]);
+    $stmt->execute([':tag' => $_GET['tag']]);
+    $posts = $stmt->fetchAll();
+
 } else {
-    $posts = $pdo->prepare("
-        SELECT * FROM logs 
-        WHERE DATE_FORMAT(post_date, '%Y-%m') = :month AND $visible_filter
+
+    // requesting the month
+    $stmt = $pdo->prepare("
+        SELECT * FROM logs
+        WHERE visible = 'y'
+          AND DATE_FORMAT(post_date, '%Y-%m') = :month
         ORDER BY post_date DESC
     ");
-    $posts->execute([':month' => $current_month]);
+    $stmt->execute([':month' => $current_month]);
+    $posts = $stmt->fetchAll();
+
+    // fallback if empty
+    if (empty($posts)) {
+
+        $stmt = $pdo->prepare("
+            SELECT * FROM logs
+            WHERE visible = 'y'
+              AND DATE_FORMAT(post_date, '%Y-%m') = (
+                  SELECT DATE_FORMAT(MAX(post_date), '%Y-%m')
+                  FROM logs
+                  WHERE visible = 'y'
+              )
+            ORDER BY post_date DESC
+        ");
+        $stmt->execute();
+        $posts = $stmt->fetchAll();
+    }
 }
-$posts = $posts->fetchAll();
 ?>
+<!-- 
+
+⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⢀⡀⠀
+⣴⠛⠉⠉⠱⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠞⠉⠉⠙⣦
+⣧⠀⠀⠀⠀⠀⠙⢦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⠋⠀⠀⠀⠀⠀⣼
+⠹⣄⠀⠀⠀⠀⠀⠀⠈⠙⠲⠦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⠖⠋⠀⠀⠀⠀⠀⠀⠀⣠⠏
+⠀⠙⢶⣄⡀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢦⡀⠀⠀⠀⠀⠀⢀⡴⠋⠁⠀⠀⠀⠀⠀⠀⠀⣀⣠⡾⠋⠀
+⠀⠀⡼⠋⠉⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢹⡄⠀⠀⠀⢠⡟⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠉⠙⢧⠀⠀
+⠀⠈⢧⡀⠀⠀⠀⠀⠀⢀⠀⣴⠋⡉⢳⡄⣷⠀⠀⠀⣾⢠⡞⠉⠙⣦⠀⠀⢀⠀⠀⠀⠀⢀⡼⠀⠀
+⠀⠀⠈⠙⠒⢲⡟⠀⠀⠀⠀⢻⣄⠙⠛⣱⠇⠀⠀⠀⠸⣎⠛⠋⣠⡟⠀⠀⠈⠀⢻⡗⠒⠋⠁⠀⠀
+⠀⠀⠀⠀⠀⠈⠷⣄⣀⣀⣀⣤⠟⠛⠛⠁⠀⠀⠀⠀⠀⠈⠛⠛⠻⣤⣀⣀⣀⣤⠾⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠈⠁⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀
+
+this section should be more familiar to you because
+it is a combination of php and html/css
+DO NOT BE AFRAID TO ALTER IT AS MUCH, JUST MAKE BACKUPS
+use CONTROL F TO find things like header and footer
+---->
 
 <!DOCTYPE html>
 <html>
@@ -39,7 +86,11 @@ $posts = $posts->fetchAll();
 <body>
 <div id="layout">
     
-    <!-- Header -->
+	<!---
+	⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+	this contains the "header" of your blog.
+	it's just a DIV so you can like.. add images or text or whatever.
+	--->
     <header id="header">
         <h1><a href="/">wow a header againn</a></h1>
         <p class="subtitle">WHAT THE HELL</p>
@@ -47,7 +98,14 @@ $posts = $posts->fetchAll();
     
     <div id="content-wrapper">
         
-        <!-- Sidebar LEFT -->
+        <!---
+		⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+		this is the sidebar
+		--->
+		
+		<!---THIS CONTAINS A TINY BIT OF STUFF FOR YOU TO PUT
+		You can also just delete it if you want I guess it's very Tumblr-->
+		
         <aside id="sidebar">
             <div class="profile-card">
                 <img src="images/scantyicon.gif" alt="profile" class="profile-img">
@@ -56,119 +114,156 @@ $posts = $posts->fetchAll();
                 <p><a href="#">maybe a link here idk</a></p>
             </div>
 
-            <div class="sidebar-widget">
-                <h3>Latest Journals</h3>
-                <?php 
-                // 🟢 Only visible posts
-                $recent_posts_stmt = $pdo->query("
-                    SELECT id, title, post_date 
-                    FROM logs 
-                    WHERE $visible_filter
-                    ORDER BY post_date DESC 
-                    LIMIT 5
-                ");
-                $recent_posts = $recent_posts_stmt->fetchAll();
+        		
+		<!---
+		⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+		This holds the latest journals
+		THE PHP CANNOT BE TOUCHED 
+		But everything around it can BE
+		-->
+        <div class="sidebar-widget">
+            <h3>Latest Journals</h3>
+			<?php
+			$recent_posts = $pdo->query("
+				SELECT id, title, post_date 
+				FROM logs 
+				WHERE visible = 'y'
+				ORDER BY post_date DESC 
+				LIMIT 5
+			")->fetchAll();
 
-                foreach ($recent_posts as $post): 
-                    $month = date('Y-m', strtotime($post['post_date']));
-                    $day = date('j', strtotime($post['post_date']));
-                ?>
-                    <a href="?month=<?= $month ?>&day=<?= $day ?>#post-<?= $post['id'] ?>">
-                        <?= htmlspecialchars($post['title']) ?><br>
-                    </a>
-                <?php endforeach; ?>
-            </div>
+			foreach ($recent_posts as $post): 
+				$month = date('Y-m', strtotime($post['post_date']));
+				$day = date('j', strtotime($post['post_date']));
+			?>
+				<a href="?month=<?= $month ?>&day=<?= $day ?>#post-<?= $post['id'] ?>">
+					<?= htmlspecialchars($post['title']) ?><br>
+				</a>
+			<?php endforeach; ?>
+        </div>
 
-            <div class="sidebar-widget">
-                <h3>Calendar</h3>
-                <div class="calendar-box">
-                    <ul>
-                    <?php
-                    // 🟢 Only months with visible posts
-                    $months = $pdo->query("
-                        SELECT DISTINCT DATE_FORMAT(post_date, '%Y-%m') AS month 
-                        FROM logs 
-                        WHERE $visible_filter
-                        ORDER BY month DESC
-                    ")->fetchAll();
-                    
-                    foreach ($months as $m): ?>
-                        <li>
-                            <a href="?month=<?= $m['month'] ?>">
-                                <?= date('F Y', strtotime($m['month'] . '-01')) ?>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                    </ul>
-                </div>
-            </div>
-
+		<!---
+		⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+		This is normally where calendar
+		
+		IMAGINE
+		
+		But joural doesn't Have one.
+		This is because it just wasn't very suitable
+		-->
+	
+	
+			<!---
+			⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+			This will list every single tag
+			and works as a form of navigation
+			-->
             <div class="sidebar-widget">
                 <h3>Tags</h3>
                 <ul>
-                    <?php
-                    // 🟢 Only visible posts count for tags
-                    $tags_raw = $pdo->query("SELECT tags FROM logs WHERE tags != '' AND $visible_filter")->fetchAll();
-                    $all_tags = [];
+					<?php
+					$tags_raw = $pdo->query("SELECT tags FROM logs WHERE tags != ''")->fetchAll();
+					$all_tags = [];
 
-                    foreach ($tags_raw as $row) {
-                        $tags = explode(',', $row['tags']);
-                        foreach ($tags as $tag) {
-                            $clean_tag = trim($tag);
-                            if (!empty($clean_tag)) {
-                                $all_tags[$clean_tag] = true;
-                            }
-                        }
-                    }
+					foreach ($tags_raw as $row) {
+						$tags = explode(',', $row['tags']);
+						foreach ($tags as $tag) {
+							$clean_tag = trim($tag);
+							if (!empty($clean_tag)) {
+								$all_tags[$clean_tag] = true;
+							}
+						}
+					}
 
-                    foreach (array_keys($all_tags) as $tag): ?>
-                        <li><a href="?tag=<?= urlencode($tag) ?>"><?= htmlspecialchars($tag) ?></a></li>
-                    <?php endforeach; ?>
+					foreach (array_keys($all_tags) as $tag): ?>
+						<li><a href="?tag=<?= urlencode($tag) ?>"><?= htmlspecialchars($tag) ?></a></li>
+					<?php endforeach; ?>
                 </ul>
-            </div>
+			</div>
+			
+			<!---
+			⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+			This lists all the months you've updated your blog
+			-->
 
             <div class="sidebar-widget">
                 <h3>Monthly Archive</h3>
                 <ul>
-                    <?php foreach ($months as $m): ?>
-                        <li>
-                            <a href="?month=<?= $m['month'] ?>">
-                                <?= date('F Y', strtotime($m['month'] . '-01')) ?>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
+					<?php
+					$months = $pdo->query("
+						SELECT DISTINCT DATE_FORMAT(post_date, '%Y-%m') AS month 
+						FROM logs 
+						ORDER BY month DESC
+					")->fetchAll();
+
+					foreach ($months as $m): ?>
+						<li>
+							<a href="?month=<?= $m['month'] ?>">
+								<?= date('F Y', strtotime($m['month'] . '-01')) ?>
+							</a>
+						</li>
+					<?php endforeach; ?>
                 </ul>
             </div>
         </aside>
         
-        <!-- Main posts RIGHT -->
-        <main id="main">
-            <?php foreach ($posts as $post): ?>
-                <article class="entry" id="post-<?= $post['id'] ?>">
-                    <h2 class="entry-title"><?= htmlspecialchars($post['title']) ?></h2>
-                    <div class="entry-meta">Posted on <?= $post['post_date'] ?></div>
-                    <div class="entry-content">
-                        <?= nl2br(htmlspecialchars_decode($post['content'])) ?>
-                    </div>
-                    <?php if (!empty($post['tags'])): ?>
-                        <div class="entry-tags">
-                            Tags:
-                            <?php foreach (explode(',', $post['tags']) as $tag): ?>
-                                <a href="?tag=<?= urlencode(trim($tag)) ?>">#<?= htmlspecialchars(trim($tag)) ?></a>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                    <div class="entry-divider"></div>
-                </article>
-            <?php endforeach; ?>
-        </main>
-    </div>
+		        
+		<!---
+		sidebar ends
+		--->
+		
+		
+		<!---
+		⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+		This is the "main" section. Your blog. Your logs. Your alogs. 
+		You get it. Very important.
+		-->
+
+		<div id="main">
+			<?php foreach ($posts as $post): ?>
+				<table class="entry_table" id="post-<?= $post['id'] ?>">
+					<tr>
+						<td class="entry_bg">
+							<div class="entry_title"><?= htmlspecialchars($post['title']) ?></div>
+							<div class="entry_state">Posted on: <?= $post['post_date'] ?></div>
+							<div class="entry_text">
+								<?php if (!empty($post['tags'])): ?>
+									<div class="entry_tags">
+										Tags:
+										<?php 
+										$tags = explode(',', $post['tags']);
+										foreach ($tags as $tag): 
+											$tag = trim($tag);
+										?>
+											<a href="?tag=<?= urlencode($tag) ?>"><?= htmlspecialchars($tag) ?></a>
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+								<?= nl2br(htmlspecialchars_decode($post['content'])) ?>
+							</div>
+						</td>
+					</tr>
+				</table>
+			<?php endforeach; ?>
+		</div>
+		</div>
     
-    <!-- Footer -->
+	
+	<!---
+	⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+	This is a footer. I just like them.
+	-->
+
     <footer id="footer">
         <p>footer for blog that will last forever</p>
     </footer>
+	
 </div>
+
+<!---
+⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
+Handles smooth navigation lol
+-->
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -59,8 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
                 $_POST['visible'] ?? 'n',
                 $edit_id
             ]);
-        header("Location: admin.php?success=updated"); // for updates
-        exit;
+            echo '<div class="success">✅ Post updated!</div>';
         } else {
             // --- Create new post ---
             $stmt = $pdo->prepare("
@@ -76,8 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
                 $_POST['anchor_name'] ?? '',
                 $_POST['visible'] ?? 'n'
             ]);
-            header("Location: admin.php?success=1");
-            exit;
+            echo '<div class="success">✅ Post published! <a href="index.php">View Blog</a></div>';
         }
     } catch (PDOException $e) {
         die("Database error: " . $e->getMessage());
@@ -113,16 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
 
 <body>
 <div class="container">
-    <?php if (!empty($_GET['success'])): ?>
-        <div class="success">
-            <?php 
-            if ($_GET['success'] === '1') echo '✅ Post published!';
-            elseif ($_GET['success'] === 'updated') echo '✅ Post updated!';
-            ?>
-            <a href="index.php">View Blog</a>
-        </div>
-    <?php endif; ?>
-
     <form method="POST" action="" enctype="multipart/form-data">
         <p>
             <label>Edit existing post:<br>
@@ -137,25 +125,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </optgroup>
-                    </optgroup>
-                        <optgroup label="Published">
-                            <?php foreach ($posts as $p): ?>
-                                <?php if ($p['visible'] == 'y'): ?>
-                                    <option value="<?= htmlspecialchars($p['id']) ?>">
-                                        <?= htmlspecialchars($p['title']) ?> (<?= htmlspecialchars($p['post_date']) ?>)
-                                    </option>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-
-                            <?php if ($hiddenCount > 0): ?>
-                                <option disabled>+<?= $hiddenCount ?> more posts...</option>
+                    <optgroup label="Published">
+                        <?php foreach ($posts as $p): ?>
+                            <?php if ($p['visible'] == 'y'): ?>
+                                <option value="<?= htmlspecialchars($p['id']) ?>">
+                                    <?= htmlspecialchars($p['title']) ?> (<?= htmlspecialchars($p['post_date']) ?>)
+                                </option>
                             <?php endif; ?>
-                        </optgroup>
+                        <?php endforeach; ?>
+                    </optgroup>
                 </select>
             </label>
         </p>
 
-        <!-- ✅ Hidden field to track the selected post -->
+        <!-- HIDDEN FIELD FOR KEEPING TRACK OF SELECTED POST -->
         <input type="hidden" name="edit_id_hidden" id="edit_id_hidden" value="">
 
         <p>
@@ -200,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const textarea = document.getElementById('editor');
     textarea.style.display = 'none';
 
-    // Create editor
+    // CREATE EDITOR
     const editorDiv = document.createElement('div');
     editorDiv.contentEditable = true;
     editorDiv.id = 'mini-editor';
@@ -211,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     editorDiv.innerHTML = textarea.value;
     textarea.parentNode.insertBefore(editorDiv, textarea.nextSibling);
 
-    // Toolbar
+    // TOOLBAR
     const toolbar = document.createElement('div');
     toolbar.className = 'mini-toolbar';
     toolbar.style.marginBottom = '5px';
@@ -266,12 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editorDiv.parentNode.insertBefore(toolbar, editorDiv);
 
-    // Sync editor content to textarea
+    // EDITOR SYNC
     textarea.form.addEventListener('submit', () => {
         textarea.value = editorDiv.innerHTML;
     });
 
-    // === Load post function ===
+    // THIS IS THE LOAD POST FUNCTION
     window.loadPost = function(id) {
         const title = document.querySelector('[name="title"]');
         const date = document.querySelector('[name="post_date"]');
@@ -285,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             date.value = '';
             tags.value = '';
             visible.value = 'n';
-            hiddenEditId.value = ''; // new post
+            hiddenEditId.value = ''; // NEW POST
             return;
         }
 
@@ -297,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 date.value = post.post_date.replace(' ', 'T');
                 tags.value = post.tags;
                 visible.value = post.visible;
-                hiddenEditId.value = id; // ✅ keep ID for updates
+                hiddenEditId.value = id; // ID IS IMPORTANT!!!!!!!!!!
                 editorDiv.focus();
                 document.getSelection().collapse(editorDiv, 0);
             });

@@ -1,33 +1,20 @@
 <?php
-
-//˚₊‧꒰ა ☆ ໒꒱ ‧₊˚ GENERALLY YOU SHOULD NEVER ALTER THIS SECTION 
-// though that's not completely true
-// like you may end up moving the config file eventually
-// but most of of this section shouldn't be touched
-// "DO NOT TOUCH THIS" is more of a recommendation
-
-// this contains a lot of info to access your database and login
 include 'config.php';
 
-// CURRENT MONTH | DO NOT TOUCH THIS
-$current_month = $_GET['month'] ?? date('Y-m');
+// Default month
+$current_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
 
-
-// TAG PREPARATION FOR TAG FILTERING | DO NOT TOUCH THIS
-if (isset($_GET['tag']) && $_GET['tag'] !== '') {
-
+// Prepare tag or month filter
+if (isset($_GET['tag'])) {
+    $tag = $_GET['tag'];
     $stmt = $pdo->prepare("
         SELECT * FROM logs
         WHERE visible = 'y'
           AND FIND_IN_SET(:tag, tags)
         ORDER BY post_date DESC
     ");
-    $stmt->execute([':tag' => $_GET['tag']]);
-    $posts = $stmt->fetchAll();
-
+    $stmt->execute([':tag' => $tag]);
 } else {
-
-    // requesting the month
     $stmt = $pdo->prepare("
         SELECT * FROM logs
         WHERE visible = 'y'
@@ -35,45 +22,10 @@ if (isset($_GET['tag']) && $_GET['tag'] !== '') {
         ORDER BY post_date DESC
     ");
     $stmt->execute([':month' => $current_month]);
-    $posts = $stmt->fetchAll();
-
-    // fallback if empty
-    if (empty($posts)) {
-
-        $stmt = $pdo->prepare("
-            SELECT * FROM logs
-            WHERE visible = 'y'
-              AND DATE_FORMAT(post_date, '%Y-%m') = (
-                  SELECT DATE_FORMAT(MAX(post_date), '%Y-%m')
-                  FROM logs
-                  WHERE visible = 'y'
-              )
-            ORDER BY post_date DESC
-        ");
-        $stmt->execute();
-        $posts = $stmt->fetchAll();
-    }
 }
+
+$posts = $stmt->fetchAll();
 ?>
-
-<!--- 
-
-⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⢀⡀⠀
-⣴⠛⠉⠉⠱⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠞⠉⠉⠙⣦
-⣧⠀⠀⠀⠀⠀⠙⢦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⠋⠀⠀⠀⠀⠀⣼
-⠹⣄⠀⠀⠀⠀⠀⠀⠈⠙⠲⠦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⠖⠋⠀⠀⠀⠀⠀⠀⠀⣠⠏
-⠀⠙⢶⣄⡀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢦⡀⠀⠀⠀⠀⠀⢀⡴⠋⠁⠀⠀⠀⠀⠀⠀⠀⣀⣠⡾⠋⠀
-⠀⠀⡼⠋⠉⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⢹⡄⠀⠀⠀⢠⡟⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠉⠙⢧⠀⠀
-⠀⠈⢧⡀⠀⠀⠀⠀⠀⢀⠀⣴⠋⡉⢳⡄⣷⠀⠀⠀⣾⢠⡞⠉⠙⣦⠀⠀⢀⠀⠀⠀⠀⢀⡼⠀⠀
-⠀⠀⠈⠙⠒⢲⡟⠀⠀⠀⠀⢻⣄⠙⠛⣱⠇⠀⠀⠀⠸⣎⠛⠋⣠⡟⠀⠀⠈⠀⢻⡗⠒⠋⠁⠀⠀
-⠀⠀⠀⠀⠀⠈⠷⣄⣀⣀⣀⣤⠟⠛⠛⠁⠀⠀⠀⠀⠀⠈⠛⠛⠻⣤⣀⣀⣀⣤⠾⠁⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠈⠁⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀
-
-this section should be more familiar to you because
-it is a combination of php and html/css
-DO NOT BE AFRAID TO ALTER IT AS MUCH, JUST MAKE BACKUPS
-use CONTROL F TO find things like header and footer
----->
 
 <!DOCTYPE html>
 <html>
@@ -81,27 +33,17 @@ use CONTROL F TO find things like header and footer
     <meta charset="UTF-8">
     <title>blog title</title>
     <meta name="description" content="my bloggies">
-    <link rel="stylesheet" href="compact.css">
+    <link rel="stylesheet" href="blank.css">
     <link rel="script" href="calendar.js">
 </head>
 <body>
+
 <div id="layout">
-	<!---
-	⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
-	this contains the "header" of your blog.
-	it's just a DIV so you can like.. add images or text or whatever.
-	--->
     <div id="header">gay gay homosexual gay</div>
 
     <div id="content-wrapper">
-		
-		<!---
-		⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
-		This is the "main" section. Your blog. Your logs. Your alogs. 
-		You get it. Very important.
-		-->
-
-        <div id="main">
+        <!-- Main posts -->
+        <div class="main">
             <?php foreach ($posts as $post): ?>
                 <div class="entry_table" id="post-<?= $post['id'] ?>">
                     <div class="entry_title"><?= htmlspecialchars($post['title']) ?></div>
@@ -120,25 +62,21 @@ use CONTROL F TO find things like header and footer
             <?php endforeach; ?>
         </div>
 
-        
-        <!---
-		⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
-		this is the sidebar
-		--->
+        <!-- Sidebar -->
         <div id="sidebar">
             <div class="sidebar-widget">
                 <h3>Latest Posts</h3>
                 <ul>
-                    <?php
+                    <?php 
                     $recent_posts = $pdo->query("
-                        SELECT id, title, post_date 
-                        FROM logs 
+                        SELECT id, title, post_date
+                        FROM logs
                         WHERE visible = 'y'
-                        ORDER BY post_date DESC 
+                        ORDER BY post_date DESC
                         LIMIT 5
                     ")->fetchAll();
 
-                    foreach ($recent_posts as $post): 
+                    foreach ($recent_posts as $post):
                         $month = date('Y-m', strtotime($post['post_date']));
                         $day = date('j', strtotime($post['post_date']));
                     ?>
@@ -148,13 +86,8 @@ use CONTROL F TO find things like header and footer
                     <?php endforeach; ?>
                 </ul>
             </div>
-			
-			<!---
-			⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
-			This will list every single tag
-			and works as a form of navigation
-			-->
-			
+
+            <!-- Tags -->
             <div class="sidebar-widget">
                 <h3>Tags</h3>
                 <ul>
@@ -166,9 +99,7 @@ use CONTROL F TO find things like header and footer
                         $tags = explode(',', $row['tags']);
                         foreach ($tags as $tag) {
                             $clean_tag = trim($tag);
-                            if (!empty($clean_tag)) {
-                                $all_tags[$clean_tag] = true;
-                            }
+                            if (!empty($clean_tag)) $all_tags[$clean_tag] = true;
                         }
                     }
 
@@ -178,12 +109,7 @@ use CONTROL F TO find things like header and footer
                 </ul>
             </div>
 
-
-			<!---
-			⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
-			This is the calendar
-			This exists because I like this feature FC2
-			-->
+            <!-- Calendar -->
             <div class="sidebar-widget">
                 <h3>Calendar</h3>
                 <div id="calendar">
@@ -241,42 +167,10 @@ use CONTROL F TO find things like header and footer
                 </div>
             </div>
 
-        		
-			<!---
-			⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
-			This holds the latest journals
-			THE PHP CANNOT BE TOUCHED 
-			But everything around it can BE
-			-->
-            <div class="sidebar-widget">
-                <h3>Monthly Archive</h3>
-                <ul>
-                    <?php
-                    $months = $pdo->query("
-                        SELECT DISTINCT DATE_FORMAT(post_date, '%Y-%m') AS month 
-                        FROM logs 
-                        ORDER BY month DESC
-                    ")->fetchAll();
-
-                    foreach ($months as $m): ?>
-                        <li>
-                            <a href="?month=<?= $m['month'] ?>">
-                                <?= date('F Y', strtotime($m['month'] . '-01')) ?>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
         </div>
     </div>
-	
-			
-	<!---
-	⁺໒꒱ིྀ༝   ໒꒱ྀི𓊆ྀི♡𓊇ྀི꒰ঌ໒꒱ 
-	This is a footer. I just like them.
-	-->
 
-    <div id="footer">footer text for cute girls</div>
+    <div id="footer">© 2025 My Footer text for cute princesses</div>
 </div>
 </body>
 </html>
